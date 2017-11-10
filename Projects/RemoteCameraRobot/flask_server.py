@@ -1,10 +1,10 @@
 from flask import Flask, jsonify, render_template, request, Response, send_from_directory, url_for
-# from easygopigo3 import EasyGoPiGo3
+from easygopigo3 import EasyGoPiGo3
 
 MAX_FORCE = 5.0
 MIN_SPEED = 100
 MAX_SPEED = 300
-# gopigo3_robot = EasyGoPiGo3()
+gopigo3_robot = EasyGoPiGo3()
 
 app = Flask(__name__, static_url_path='')
 
