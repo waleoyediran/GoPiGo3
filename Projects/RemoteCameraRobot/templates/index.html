@@ -15,7 +15,7 @@
 
     <div class="container">
         <div id="zone_joystick">
-            <img id="video_source" src="http://dex.local:8080/stream/video.mjpeg"/>
+            <img id="video_source"/>
 
             <!--
             Example of video source shown on the whole page
@@ -67,6 +67,7 @@
         var joystick_default_size = 150;
         var joystick_current_size = joystick_default_size * width / joystick_size_factor;
         var server_address = window.location.href + "robot";
+        document.getElementById("video_source").src= window.location.protocol + "//" + window.location.hostname + ":8080/stream/video.mjpeg";
 
         // the data that's transformed as a query and sent to the server
         // changes while the joystick is used
