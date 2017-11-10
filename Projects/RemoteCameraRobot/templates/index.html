@@ -66,7 +66,7 @@
         var joystick_size_factor = 1280;
         var joystick_default_size = 150;
         var joystick_current_size = joystick_default_size * width / joystick_size_factor;
-        var server_address = "http://dex.local:5000/robot";
+        var server_address = window.location.href + "robot";
 
         // the data that's transformed as a query and sent to the server
         // changes while the joystick is used
@@ -191,7 +191,8 @@
 
                     if (Math.abs(axeLF) > 0.5 || Math.abs(axeLG) > 0.5){
                         isControllerMoving = true;
-                        var angle = Math.atan2(axeLG, axeLF) * (180 /Math.PI);
+                        var angle = 180 + (Math.atan2(axeLG, axeLF) * (180 /Math.PI));
+                        console.log(angle);
                         
 
                         gopigo3_orientation.state = 'move';
