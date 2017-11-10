@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <link rel="shortcut icon" href="{{ url_for('static', filename='static/favicon.ico') }}">
     <link rel="stylesheet" href="static/style.css"/>
-    <script src="static/nipplejs.js"></script>
-    <script src="static/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.6.7/nipplejs.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="static/throttle.js"></script>
 
     <title>Remote GoPiGo3</title>
@@ -36,10 +36,31 @@
                 <li id="angle_dir">Angle Direction: Up</li>
                 <li id="force">Joystick Force: 1.0</li>
             </ul>
+
+            <div id="gamepadPrompt"></div>
+            <div id="gamepadDisplay"></div>
         </div>
+    
     </div>
 
     <script>
+
+        var hasGP = false;
+        var repGP;
+        var input = {
+                left: false,
+                right: false
+            };
+        var isControllerMoving = false;
+     
+        ////////////
+
+        function canGame() {
+            return "getGamepads" in navigator;
+        }
+
+    
+
         var joystick;
         var width = 1280;
         var joystick_size_factor = 1280;
@@ -138,6 +159,98 @@
             document.getElementById('angle_dir').innerHTML = 'Angle Direction: ' + data.angle_dir;
             document.getElementById('force').innerHTML = 'Joystick Force: ' + data.force.toFixed(2);
         }
+
+
+        //gamepad support
+            if(canGame()) {
+                var prompt = "To begin using your gamepad, connect it and press any button!";
+                $("#gamepadPrompt").text(prompt);
+                $(window).on("gamepadconnected", function() {
+                    hasGP = true;
+                    $("#gamepadPrompt").html("Gamepad connected!");
+                    repGP = window.setInterval(checkGamepad,100);
+                });
+                $(window).on("gamepaddisconnected", function() {
+                    $("#gamepadPrompt").text(prompt);
+                    window.clearInterval(repGP);
+                });
+                //setup an interval for Chrome
+                var checkGP = window.setInterval(function() {
+                    if(navigator.getGamepads()[0]) {
+                        if(!hasGP) $(window).trigger("gamepadconnected");
+                        window.clearInterval(checkGP);
+                    }
+                }, 500);
+                
+                function checkGamepad() {
+                    var gp = navigator.getGamepads()[0];
+                    var axeLF = gp.axes[0];
+                    var axeLG = gp.axes[1];
+                    // console.log(gp);
+
+
+                    if (Math.abs(axeLF) > 0.5 || Math.abs(axeLG) > 0.5){
+                        isControllerMoving = true;
+                        var angle = Math.atan2(axeLG, axeLF) * (180 /Math.PI);
+                        
+
+                        gopigo3_orientation.state = 'move';
+                        gopigo3_orientation.angle_degrees = angle;
+                        gopigo3_orientation.force = 2;
+
+                        query_string = '?' + $.param(gopigo3_orientation);
+
+                        // use the following function instead the usual $.post
+                        // so that we can throttle the rate of sending data
+                        // good practice for not "choking" the network
+                        send_throttled_data(server_address, query_string, gopigo3_orientation);
+
+                    } else if (isControllerMoving){
+
+
+                        setTimeout(function(){
+                            isControllerMoving = false;
+                            gopigo3_orientation.state = 'stop';
+                            query_string = '?' + $.param(gopigo3_orientation);
+
+                            setOnScreen(gopigo3_orientation);
+                            console.log('stop robot', gopigo3_orientation);
+
+                            $.post(server_address + query_string);
+
+                        }, 300);
+                    }
+                    if(axeLF < -0.5) {
+                        input.left = true;
+                        input.right = false;
+                    } else if(axeLF > 0.5) {
+                        input.left = false;
+                        input.right = true;
+                    } else {
+                        input.left = false;
+                        input.right = false;
+                    }
+
+                    // var html = "";
+                    //     html += "id: "+gp.id+"<br/>";
+             
+                    // for(var i=0;i<gp.buttons.length;i++) {
+                    //     html+= "Button "+(i+1)+": ";
+                    //     if(gp.buttons[i].pressed) html+= " pressed";
+                    //     html+= "<br/>";
+                    // }
+             
+                    // for(var i=0;i<gp.axes.length; i+=2) {
+                    //     html+= "Stick "+(Math.ceil(i/2)+1)+": "+gp.axes[i]+","+gp.axes[i+1]+"<br/>";
+                    // }
+             
+                    // $("#gamepadDisplay").html(html);
+
+                    
+                }
+            }  
+
+
 
     </script>
   </body>
