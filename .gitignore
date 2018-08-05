@@ -104,3 +104,6 @@ sftp-config-alt6.json
 .json
 
 .ftpconfig
+
+.idea
+*.DS_Store
