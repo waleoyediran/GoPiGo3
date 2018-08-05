@@ -40,7 +40,7 @@
             <div id="gamepadPrompt"></div>
             <div id="gamepadDisplay"></div>
         </div>
-    
+
     </div>
 
     <script>
@@ -52,14 +52,14 @@
                 right: false
             };
         var isControllerMoving = false;
-     
+
         ////////////
 
         function canGame() {
             return "getGamepads" in navigator;
         }
 
-    
+
 
         var joystick;
         var width = 1280;
@@ -182,7 +182,7 @@
                         window.clearInterval(checkGP);
                     }
                 }, 500);
-                
+
                 function checkGamepad() {
                     var gp = navigator.getGamepads()[0];
                     var axeLF = gp.axes[0];
@@ -194,7 +194,7 @@
                         isControllerMoving = true;
                         var angle = 180 + (Math.atan2(axeLG, axeLF) * (180 /Math.PI));
                         console.log(angle);
-                        
+
 
                         gopigo3_orientation.state = 'move';
                         gopigo3_orientation.angle_degrees = angle;
@@ -235,22 +235,22 @@
 
                     // var html = "";
                     //     html += "id: "+gp.id+"<br/>";
-             
+
                     // for(var i=0;i<gp.buttons.length;i++) {
                     //     html+= "Button "+(i+1)+": ";
                     //     if(gp.buttons[i].pressed) html+= " pressed";
                     //     html+= "<br/>";
                     // }
-             
+
                     // for(var i=0;i<gp.axes.length; i+=2) {
                     //     html+= "Stick "+(Math.ceil(i/2)+1)+": "+gp.axes[i]+","+gp.axes[i+1]+"<br/>";
                     // }
-             
+
                     // $("#gamepadDisplay").html(html);
 
-                    
+
                 }
-            }  
+            }
 
 
 
